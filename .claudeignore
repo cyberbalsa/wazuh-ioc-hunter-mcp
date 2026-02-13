@@ -1,5 +1,0 @@
-.git/
-node_modules/
-*.tsbuildinfo
-*.swp
-.DS_Store
