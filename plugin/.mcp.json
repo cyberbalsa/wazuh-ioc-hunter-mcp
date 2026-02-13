@@ -2,8 +2,8 @@
   "mcpServers": {
     "wazuh-ioc-hunter": {
       "type": "stdio",
-      "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "github:cyberbalsa/wazuh-ioc-hunter-mcp"],
       "env": {
         "NODE_TLS_REJECT_UNAUTHORIZED": "0"
       }

@@ -69,7 +69,7 @@ Use this if you just want the MCP tools without the plugin skills.
 ```bash
 # 1. Clone the repo
 git clone https://github.com/cyberbalsa/wazuh-ioc-hunter-mcp.git
-cd wazuh-ioc-hunter-mcp/plugin
+cd wazuh-ioc-hunter-mcp
 
 # 2. Install dependencies and build
 npm install
@@ -85,7 +85,7 @@ You can add it to any project's `.mcp.json` manually:
   "mcpServers": {
     "wazuh-ioc-hunter": {
       "command": "node",
-      "args": ["/absolute/path/to/wazuh-ioc-hunter-mcp/plugin/dist/index.js"],
+      "args": ["/absolute/path/to/wazuh-ioc-hunter-mcp/dist/index.js"],
       "env": {
         "NODE_TLS_REJECT_UNAUTHORIZED": "0",
         "WAZUH_OPENSEARCH_URL": "https://your-wazuh-host:9200",
@@ -107,7 +107,7 @@ claude mcp add --global wazuh-ioc-hunter \
   -e WAZUH_OPENSEARCH_URL=https://your-wazuh-host:9200 \
   -e WAZUH_OPENSEARCH_USER=admin \
   -e WAZUH_OPENSEARCH_PASS=your-password \
-  -- node /absolute/path/to/wazuh-ioc-hunter-mcp/plugin/dist/index.js
+  -- node /absolute/path/to/wazuh-ioc-hunter-mcp/dist/index.js
 ```
 
 ---
@@ -139,38 +139,38 @@ The skills automatically read `docs/network-map.md` for context during investiga
 ## Architecture
 
 ```
+src/                        # MCP server source (TypeScript)
+  index.ts                  # Entry point (8 tools registered)
+  opensearch-client.ts      # fetch() wrapper with Basic auth
+  lib/
+    constants.ts            # Connection config, field mappings, defaults
+    formatters.ts           # Result formatting and time range helpers
+  tools/
+    search-ioc.ts           # IOC search with field-type mapping
+    search-logs.ts          # General log search with filters
+    get-alerts.ts           # Alert retrieval by severity
+    get-agent-info.ts       # Agent listing and detail
+    investigate-host.ts     # Deep host investigation (5 parallel queries)
+    run-query.ts            # Raw OpenSearch DSL passthrough
+    get-rule-info.ts        # Rule lookup with MITRE/compliance
+    get-index-list.ts       # Index listing via _cat API
+package.json                # Node.js package (bin, prepare script for npx)
+tsconfig.json               # TypeScript config
 .claude-plugin/
   marketplace.json          # Marketplace listing metadata
-plugin/                     # Self-contained Claude Code plugin
+plugin/                     # Claude Code plugin (cached on install)
   .claude-plugin/
     plugin.json             # Plugin identity and version
-  .mcp.json                 # MCP server config (uses CLAUDE_PLUGIN_ROOT)
+  .mcp.json                 # MCP server config (npx from GitHub)
   CLAUDE.md                 # Plugin context for Claude Code
-  package.json              # Node.js package with build scripts
-  tsconfig.json             # TypeScript config
-  src/
-    index.ts                # MCP server entry point (8 tools registered)
-    opensearch-client.ts    # fetch() wrapper with Basic auth
-    lib/
-      constants.ts          # Connection config, field mappings, defaults
-      formatters.ts         # Result formatting and time range helpers
-    tools/
-      search-ioc.ts         # IOC search with field-type mapping
-      search-logs.ts        # General log search with filters
-      get-alerts.ts         # Alert retrieval by severity
-      get-agent-info.ts     # Agent listing and detail
-      investigate-host.ts   # Deep host investigation (5 parallel queries)
-      run-query.ts          # Raw OpenSearch DSL passthrough
-      get-rule-info.ts      # Rule lookup with MITRE/compliance
-      get-index-list.ts     # Index listing via _cat API
   skills/                   # Skill definitions (SKILL.md files)
     hunt-ioc/               # /hunt-ioc — guided IOC hunting
     investigate/            # /investigate — deep host analysis
     threat-overview/        # /threat-overview — situational briefing
   commands/                 # Slash commands
     hunt.md                 # /hunt — quick IOC search
-  hooks/                    # Plugin lifecycle hooks
-    hooks.json              # Setup hook (auto-build on install)
+  hooks/
+    hooks.json              # Plugin hooks
 docs/
   GOAD.pdf                  # Network topology diagram
   network-map.md            # Network map in markdown
