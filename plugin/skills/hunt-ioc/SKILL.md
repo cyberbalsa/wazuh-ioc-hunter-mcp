@@ -66,7 +66,7 @@ If results were spilled to a file, read that file first.
 Do NOT return raw search output — only the structured summary above.
 ```
 
-## Step 3: Analyze Findings
+## Step 3: Analyze Findings & Confirm with User
 
 From the subagent's summary, identify:
 - **When**: Time range of activity
@@ -75,7 +75,20 @@ From the subagent's summary, identify:
 - **Severity**: Highest rule levels and MITRE mappings
 - **Pivots needed**: Hashes to cross-reference, hosts to investigate, rules to look up
 
-Update your task list: mark the search task as completed, create new pivot tasks.
+### Validate with the User
+
+Before pivoting, **use `AskUserQuestion`** to confirm the findings look right and get direction:
+
+- Present a brief summary of what was found (hit count, affected hosts, key indicators)
+- Ask: "Do these findings look relevant to your investigation?" with options like:
+  - "Yes, pivot on all indicators" — proceed with all pivots
+  - "Focus on [specific host/hash/IP]" — narrow the investigation
+  - "Broaden the search" — widen time window or try different IOC types
+- If suspicious hashes or filenames were found, ask: "Should I look up these hashes/files for known threat intelligence?"
+
+This checkpoint prevents wasted subagent cycles on false positives.
+
+Update your task list: mark the search task as completed, create new pivot tasks based on user direction.
 
 ## Step 4: Pivot and Expand (Parallel Subagents)
 
@@ -111,6 +124,17 @@ Report: which agents communicated with this IP, timestamps, rule descriptions, a
 If results were spilled to a file, read that file first.
 ```
 
+### Threat Intelligence (Web Search)
+
+For any suspicious IOCs found, **use `WebSearch`** to check public threat intelligence:
+
+- **Hashes**: Search `"[SHA256]" malware OR threat OR virustotal` to check if the hash is known malicious
+- **IPs**: Search `"[IP]" malicious OR C2 OR botnet OR threat` to check IP reputation
+- **Domains**: Search `"[DOMAIN]" malware OR phishing OR threat` to check domain reputation
+- **Filenames**: Search `"[FILENAME]" malware OR trojan OR exploit` to identify known malware families
+
+Report findings as: known/unknown, threat family name (if identified), and source links.
+
 **Launch all applicable pivots in a single message** (parallel Task calls). Mark pivot tasks as completed as results come back.
 
 ## Step 5: Report
@@ -119,11 +143,12 @@ Synthesize all subagent summaries into a structured report. Mark the report task
 
 1. **IOC**: The value searched and its type
 2. **Verdict**: Found / Not Found in Wazuh data
-3. **Timeline**: Chronological sequence of events
-4. **Affected Hosts**: List of agents where the IOC appeared, with context from the network map
-5. **Related IOCs**: Any hashes, IPs, or filenames discovered during pivoting
-6. **MITRE ATT&CK**: Relevant tactics and techniques observed
-7. **Recommendations**: Next investigation steps (containment, deeper analysis, etc.)
+3. **Threat Intel**: Known malware family, reputation scores, or "no public intel found" (from web searches)
+4. **Timeline**: Chronological sequence of events
+5. **Affected Hosts**: List of agents where the IOC appeared, with context from the network map
+6. **Related IOCs**: Any hashes, IPs, or filenames discovered during pivoting
+7. **MITRE ATT&CK**: Relevant tactics and techniques observed
+8. **Recommendations**: Next investigation steps (containment, deeper analysis, etc.)
 
 ## Important Notes
 
