@@ -1,6 +1,6 @@
 {
   "name": "wazuh-ioc-hunter",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Hunt for Indicators of Compromise in Wazuh SIEM via OpenSearch — search IOCs, investigate hosts, analyze alerts, and query raw OpenSearch DSL",
   "author": {
     "name": "cyberbalsa"

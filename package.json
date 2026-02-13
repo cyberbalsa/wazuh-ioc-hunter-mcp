@@ -1,6 +1,6 @@
 {
   "name": "wazuh-ioc-hunter-mcp",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Wazuh IOC Hunter MCP Server — hunt for Indicators of Compromise in Wazuh SIEM via OpenSearch",
   "type": "module",
   "main": "dist/index.js",

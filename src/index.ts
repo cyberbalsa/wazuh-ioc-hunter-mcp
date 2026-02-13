@@ -17,7 +17,7 @@ console.log = (...args: unknown[]) => console.error(...args);
 
 const server = new McpServer({
   name: "wazuh-ioc-hunter",
-  version: "1.1.0",
+  version: "1.2.0",
 });
 
 // Tool: search_ioc
