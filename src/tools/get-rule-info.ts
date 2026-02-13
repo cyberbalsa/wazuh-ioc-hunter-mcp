@@ -2,6 +2,7 @@ import { z } from "zod";
 import { opensearchSearch } from "../opensearch-client.js";
 import { DEFAULT_ALERTS_INDEX } from "../lib/constants.js";
 import { buildTimeRange } from "../lib/formatters.js";
+import { maybeSpill } from "../lib/spill.js";
 
 export const getRuleInfoSchema = {
   rule_id: z.string().describe("Wazuh rule ID to look up"),
@@ -102,5 +103,8 @@ export async function getRuleInfo(args: {
     }
   }
 
-  return lines.join("\n");
+  const text = lines.join("\n");
+  const agentCount = agentBuckets?.length ?? 0;
+  const timelineCount = timeBuckets ? timeBuckets.filter((b) => (b.doc_count as number) > 0).length : 0;
+  return maybeSpill(text, agentCount + timelineCount, "rule-info");
 }

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { opensearchSearch } from "../opensearch-client.js";
 import { DEFAULT_ALERTS_INDEX } from "../lib/constants.js";
 import { buildTimeRange } from "../lib/formatters.js";
+import { maybeSpill } from "../lib/spill.js";
 
 export const investigateHostSchema = {
   agent_name: z.string().describe("Agent/host name to investigate (e.g. 'npc-petyerbaeli', 'castelblack')"),
@@ -222,5 +223,11 @@ export async function investigateHost(args: {
     }
   }
 
-  return lines.join("\n");
+  const text = lines.join("\n");
+  // Count significant result items (high-severity hits + unique executables)
+  const resultCount = highHits.length + (exeHits.length > 0 ? new Set(exeHits.map(h => {
+    const sc = h._source.syscheck as Record<string, unknown>;
+    return (sc?.value_name as string ?? "").split("\\").pop();
+  })).size : 0);
+  return maybeSpill(text, resultCount, "investigate-host");
 }

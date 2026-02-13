@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { opensearchRequest } from "../opensearch-client.js";
 import { DEFAULT_ALERTS_INDEX } from "../lib/constants.js";
+import { maybeSpill } from "../lib/spill.js";
 
 export const runQuerySchema = {
   body: z.string().describe("OpenSearch query DSL as a JSON string"),
@@ -24,5 +25,10 @@ export async function runQuery(args: {
   const method = parsedBody ? "POST" : "GET";
   const response = await opensearchRequest(path, method, parsedBody);
 
-  return JSON.stringify(response, null, 2);
+  const text = JSON.stringify(response, null, 2);
+  // Count hits if this is a search response, otherwise use line count as proxy
+  const resp = response as Record<string, unknown>;
+  const hits = (resp?.hits as Record<string, unknown>)?.hits;
+  const resultCount = Array.isArray(hits) ? hits.length : 0;
+  return maybeSpill(text, resultCount, "raw-query");
 }

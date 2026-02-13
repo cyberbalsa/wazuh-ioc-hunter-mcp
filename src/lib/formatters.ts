@@ -1,5 +1,6 @@
 import { TIME_ANCHOR, DEFAULT_HOURS_BACK } from "./constants.js";
 import type { OpenSearchResponse } from "../opensearch-client.js";
+import { maybeSpill } from "./spill.js";
 
 export function buildTimeRange(hoursBack: number = DEFAULT_HOURS_BACK): { gte: string; lte: string } {
   const anchor = new Date(TIME_ANCHOR);
@@ -88,7 +89,8 @@ export function formatSearchResults(response: OpenSearchResponse, label: string 
     lines.push("");
   }
 
-  return lines.join("\n");
+  const text = lines.join("\n");
+  return maybeSpill(text, hits.length, "search-results");
 }
 
 export function formatAlerts(response: OpenSearchResponse): string {
@@ -128,5 +130,6 @@ export function formatAlerts(response: OpenSearchResponse): string {
     lines.push("");
   }
 
-  return lines.join("\n");
+  const text = lines.join("\n");
+  return maybeSpill(text, hits.length, "alerts");
 }

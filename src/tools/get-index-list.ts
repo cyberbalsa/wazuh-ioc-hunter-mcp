@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { opensearchCat } from "../opensearch-client.js";
+import { maybeSpill } from "../lib/spill.js";
 
 export const getIndexListSchema = {
   pattern: z.string().default("wazuh-*").describe("Index name pattern to filter (supports wildcards)"),
@@ -35,5 +36,6 @@ export async function getIndexList(args: { pattern: string }): Promise<string> {
     lines.push(`  [${health}] ${name} | Status: ${status} | Docs: ${docsCount} | Size: ${storeSize}`);
   }
 
-  return lines.join("\n");
+  const text = lines.join("\n");
+  return maybeSpill(text, indices.length, "index-list");
 }

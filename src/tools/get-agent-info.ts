@@ -2,6 +2,7 @@ import { z } from "zod";
 import { opensearchSearch } from "../opensearch-client.js";
 import { DEFAULT_ALERTS_INDEX } from "../lib/constants.js";
 import { buildTimeRange } from "../lib/formatters.js";
+import { maybeSpill } from "../lib/spill.js";
 
 export const getAgentInfoSchema = {
   agent_id: z.string().optional().describe("Specific agent ID to get details for"),
@@ -152,5 +153,6 @@ export async function getAgentInfo(args: {
     lines.push(`  ${b.key} (ID: ${id}) | IP: ${ip} | OS: ${os} | Events: ${b.doc_count} | Max Level: ${maxLevel}`);
   }
 
-  return lines.join("\n");
+  const text = lines.join("\n");
+  return maybeSpill(text, buckets.length, "agent-list");
 }
