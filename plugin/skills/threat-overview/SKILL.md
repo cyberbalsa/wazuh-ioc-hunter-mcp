@@ -7,6 +7,10 @@ description: "Get a quick overview of the current threat landscape in the Wazuh 
 
 You are producing a threat landscape briefing from the Wazuh SIEM environment. Execute these queries in parallel and synthesize the results.
 
+## Step 0: Load Network Map
+
+Read `docs/network-map.md` to understand the lab topology — domains, hosts, IPs, users, groups, services, and trust relationships. This is essential for contextualizing which hosts are DCs vs member servers, which users are domain admins, and what trust paths exist.
+
 ## Step 1: Gather Data (run in parallel)
 
 Execute all of these simultaneously:

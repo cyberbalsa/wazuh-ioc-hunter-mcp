@@ -8,6 +8,10 @@ argument-hint: "[IOC value — IP, hash, domain, URL, or filename]"
 
 You are performing an IOC (Indicator of Compromise) hunt against a Wazuh SIEM environment. Follow this structured workflow using the wazuh-ioc-hunter MCP tools.
 
+## Step 0: Load Network Context
+
+Read `docs/network-map.md` to understand the lab topology. This helps you contextualize findings — for example, knowing which IPs belong to which hosts, which users are legitimate admins vs. suspicious, and what trust relationships exist between domains.
+
 ## Step 1: Classify the IOC
 
 Determine the IOC type from the user's input:

@@ -8,12 +8,17 @@ argument-hint: "[agent/host name]"
 
 You are performing a deep-dive investigation of a specific host in the Wazuh SIEM environment. Follow this structured workflow.
 
+## Step 0: Load Network Map
+
+Read `docs/network-map.md` to understand the lab topology — domains, hosts, IPs, users, groups, services, and trust relationships. This context is essential for interpreting lateral movement and privilege escalation paths.
+
 ## Step 1: Identify the Target
 
 Parse the user's input for:
 - An **agent name** (the Wazuh agent hostname)
 - An **agent ID** (numeric ID)
 - If neither is provided, use `get_agent_info` to list all agents and ask the user to pick one
+- Cross-reference with the network map to understand the host's role (DC, member server, services)
 
 ## Step 2: Get the Overview
 
@@ -38,11 +43,12 @@ From the BAM registry entries:
 
 ## Step 4: Analyze Authentication
 
-Look for:
+Cross-reference with the network map to determine which users **should** have access vs. what you see:
 - **Remote logons** with NTLM (pass-the-hash indicators)
-- **Unusual user accounts** logging into the host
+- **Unusual user accounts** logging into the host — compare against the network map's RDP/admin groups
 - **Failed logon bursts** (brute force / credential stuffing)
 - **Lateral movement patterns** — use `search_logs` with the suspect username as `query_string`
+- **Cross-domain access** — users from one domain accessing hosts in another (check trust relationships)
 
 ## Step 5: Analyze High Severity Events
 

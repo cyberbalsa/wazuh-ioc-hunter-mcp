@@ -2,6 +2,10 @@
 
 This plugin provides 8 MCP tools for hunting Indicators of Compromise (IOCs) in a Wazuh SIEM environment via its OpenSearch backend.
 
+## Network Map
+
+The lab network topology is documented in `docs/network-map.md`. Read this file to understand the domain structure, hosts, users, groups, and attack paths. To use a different network map, replace `docs/GOAD.pdf` and regenerate `docs/network-map.md`.
+
 ## Available MCP Tools
 
 | Tool | Purpose |
@@ -17,7 +21,7 @@ This plugin provides 8 MCP tools for hunting Indicators of Compromise (IOCs) in 
 
 ## Configuration
 
-All connection settings (OpenSearch URL, credentials, time anchor, defaults) are in `src/lib/constants.ts`. Update these to match your Wazuh deployment before building.
+All connection settings are configured via environment variables in `.mcp.json`. See `.mcp.json.example` for the full list.
 
 ## Key Data Patterns
 
