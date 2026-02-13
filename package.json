@@ -1,0 +1,42 @@
+{
+  "name": "wazuh-ioc-hunter-mcp",
+  "version": "1.0.0",
+  "description": "Wazuh IOC Hunter MCP Server — hunt for Indicators of Compromise in Wazuh SIEM via OpenSearch",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "wazuh-ioc-hunter-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "tsc",
+    "start": "node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cyberbalsa/wazuh-ioc-hunter-mcp.git"
+  },
+  "keywords": [
+    "mcp",
+    "wazuh",
+    "opensearch",
+    "ioc",
+    "siem",
+    "threat-hunting",
+    "claude"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

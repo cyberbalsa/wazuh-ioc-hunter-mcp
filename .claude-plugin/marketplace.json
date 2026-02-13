@@ -1,0 +1,18 @@
+{
+  "name": "cyberbalsa",
+  "owner": {
+    "name": "cyberbalsa"
+  },
+  "metadata": {
+    "description": "Security plugins by cyberbalsa",
+    "homepage": "https://github.com/cyberbalsa/wazuh-ioc-hunter-mcp"
+  },
+  "plugins": [
+    {
+      "name": "wazuh-ioc-hunter",
+      "version": "1.0.0",
+      "source": "./plugin",
+      "description": "Hunt for Indicators of Compromise in Wazuh SIEM via OpenSearch — search IOCs, investigate hosts, analyze alerts"
+    }
+  ]
+}
