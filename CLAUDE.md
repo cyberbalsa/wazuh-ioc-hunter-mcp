@@ -21,7 +21,16 @@ The lab network topology is documented in `docs/network-map.md`. Read this file 
 
 ## Configuration
 
-All connection settings are configured via environment variables in `.mcp.json`. See `.mcp.json.example` for the full list.
+All connection settings are configured via environment variables. Export these in your shell profile:
+
+| Env Variable | Default | Description |
+|-------------|---------|-------------|
+| `WAZUH_OPENSEARCH_URL` | — | OpenSearch endpoint URL (required) |
+| `WAZUH_OPENSEARCH_USER` | `admin` | OpenSearch username |
+| `WAZUH_OPENSEARCH_PASS` | — | OpenSearch password (required) |
+| `WAZUH_TIME_ANCHOR` | `2025-10-09T20:36:04Z` | Center of default search window (ISO 8601) |
+| `WAZUH_HOURS_BACK` | `2` | Default search window in hours (centered on anchor) |
+| `NODE_TLS_REJECT_UNAUTHORIZED` | — | Set to `0` for self-signed certs (common with Wazuh) |
 
 ## Key Data Patterns
 

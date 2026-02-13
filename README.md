@@ -36,7 +36,33 @@ A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that e
 
 ## Installation
 
-### Option A: Standalone MCP Server
+### Option A: Claude Code Marketplace Plugin (Recommended)
+
+This gives you all 8 MCP tools plus the `/hunt-ioc`, `/investigate`, and `/threat-overview` skills.
+
+1. **Add the marketplace** (run inside Claude Code):
+   ```
+   /plugin marketplace add cyberbalsa/wazuh-ioc-hunter-mcp
+   ```
+
+2. **Install the plugin:**
+   ```
+   /plugin install wazuh-ioc-hunter@cyberbalsa
+   ```
+
+3. **Configure Wazuh connection** — export these in your shell profile (e.g. `~/.bashrc` or `~/.zshrc`):
+   ```bash
+   export WAZUH_OPENSEARCH_URL=https://your-wazuh-host:9200
+   export WAZUH_OPENSEARCH_USER=admin
+   export WAZUH_OPENSEARCH_PASS=your-password
+   export NODE_TLS_REJECT_UNAUTHORIZED=0  # if using self-signed certs
+   ```
+
+4. **Restart Claude Code** — the plugin's setup hook will automatically run `npm install && npm run build`.
+
+To verify, run `/hunt-ioc` or ask Claude to `search_ioc`.
+
+### Option B: Standalone MCP Server
 
 Use this if you just want the MCP tools without the plugin skills.
 
@@ -49,14 +75,10 @@ cd wazuh-ioc-hunter-mcp
 npm install
 npm run build
 
-# 3. Copy the example config and fill in your credentials
-cp .mcp.json.example .mcp.json
-# Edit .mcp.json with your Wazuh OpenSearch URL and credentials
-
-# 4. Restart Claude Code in this directory — the MCP server will auto-start
+# 3. Add to your project's .mcp.json (see docs/mcp-standalone.json.example)
 ```
 
-You can also add it to any project's `.mcp.json` manually:
+You can add it to any project's `.mcp.json` manually:
 
 ```json
 {
@@ -77,7 +99,7 @@ You can also add it to any project's `.mcp.json` manually:
 }
 ```
 
-Or register it globally (available in all projects):
+Or register globally via the `claude` CLI:
 
 ```bash
 claude mcp add --global wazuh-ioc-hunter \
@@ -88,69 +110,11 @@ claude mcp add --global wazuh-ioc-hunter \
   -- node /absolute/path/to/wazuh-ioc-hunter-mcp/dist/index.js
 ```
 
-### Option B: Claude Code Marketplace Plugin (with Skills)
-
-Use this to get the full plugin experience with `/hunt-ioc`, `/investigate`, and `/threat-overview` skills.
-
-```bash
-# 1. Create the marketplace plugins directory if it doesn't exist
-mkdir -p ~/.claude/plugins/marketplaces
-
-# 2. Clone the repo into the marketplace directory
-git clone https://github.com/cyberbalsa/wazuh-ioc-hunter-mcp.git \
-  ~/.claude/plugins/marketplaces/cyberbalsa
-
-# 3. Install dependencies and build
-cd ~/.claude/plugins/marketplaces/cyberbalsa
-npm install
-npm run build
-
-# 4. Create your .mcp.json with credentials (this file is gitignored)
-cp .mcp.json.example .mcp.json
-# Edit .mcp.json — set WAZUH_OPENSEARCH_URL, WAZUH_OPENSEARCH_USER, WAZUH_OPENSEARCH_PASS
-
-# 5. Restart Claude Code
-# The plugin will be detected automatically. You should see:
-#   - 8 MCP tools (search_ioc, investigate_host, etc.)
-#   - 3 skills (/hunt-ioc, /investigate, /threat-overview)
-```
-
-To verify the plugin is loaded, run `/hunt-ioc` or ask Claude to `search_ioc`.
-
-### Option C: Add MCP Server via `claude` CLI
-
-If you don't need skills, you can register the MCP server directly with the `claude` CLI:
-
-```bash
-# Clone and build first
-git clone https://github.com/cyberbalsa/wazuh-ioc-hunter-mcp.git ~/wazuh-ioc-hunter-mcp
-cd ~/wazuh-ioc-hunter-mcp && npm install && npm run build
-
-# Register as a project-level MCP server (current directory only)
-claude mcp add wazuh-ioc-hunter \
-  -e NODE_TLS_REJECT_UNAUTHORIZED=0 \
-  -e WAZUH_OPENSEARCH_URL=https://your-wazuh-host:9200 \
-  -e WAZUH_OPENSEARCH_USER=admin \
-  -e WAZUH_OPENSEARCH_PASS=your-password \
-  -- node ~/wazuh-ioc-hunter-mcp/dist/index.js
-
-# Or register globally (available in all projects)
-claude mcp add --global wazuh-ioc-hunter \
-  -e NODE_TLS_REJECT_UNAUTHORIZED=0 \
-  -e WAZUH_OPENSEARCH_URL=https://your-wazuh-host:9200 \
-  -e WAZUH_OPENSEARCH_USER=admin \
-  -e WAZUH_OPENSEARCH_PASS=your-password \
-  -- node ~/wazuh-ioc-hunter-mcp/dist/index.js
-
-# Verify it's registered
-claude mcp list
-```
-
 ---
 
 ## Configuration
 
-All settings can be configured via environment variables:
+All settings are configured via environment variables:
 
 | Env Variable | Default | Description |
 |-------------|---------|-------------|
@@ -161,7 +125,7 @@ All settings can be configured via environment variables:
 | `WAZUH_HOURS_BACK` | `2` | Default search window in hours (centered on anchor) |
 | `NODE_TLS_REJECT_UNAUTHORIZED` | — | Set to `0` for self-signed certs (common with Wazuh) |
 
-Environment variables are set in `.mcp.json` (standalone) or via `-e` flags with `claude mcp add`.
+For the marketplace plugin, export these in your shell profile. For standalone, set them in `.mcp.json` or via `-e` flags with `claude mcp add`.
 
 ## Network Map
 
@@ -190,21 +154,23 @@ src/
     run-query.ts          # Raw OpenSearch DSL passthrough
     get-rule-info.ts      # Rule lookup with MITRE/compliance
     get-index-list.ts     # Index listing via _cat API
-plugin/
-  .claude-plugin/         # Plugin metadata (plugin.json)
-  .mcp.json               # MCP server config for plugin mode
-  CLAUDE.md               # Plugin context for Claude Code
-  skills/                 # Skill definitions (SKILL.md files)
-    hunt-ioc/             # /hunt-ioc — guided IOC hunting
-    investigate/          # /investigate — deep host analysis
-    threat-overview/      # /threat-overview — situational briefing
-  commands/               # Slash commands
-    hunt.md               # /hunt — quick IOC search
-  hooks/                  # Plugin lifecycle hooks
-    hooks.json            # Setup hook (auto-build on install)
+.claude-plugin/
+  marketplace.json        # Marketplace listing metadata
+  plugin.json             # Plugin identity and version
+.mcp.json                 # MCP server config (uses CLAUDE_PLUGIN_ROOT)
+CLAUDE.md                 # Plugin context for Claude Code
+skills/                   # Skill definitions (SKILL.md files)
+  hunt-ioc/               # /hunt-ioc — guided IOC hunting
+  investigate/            # /investigate — deep host analysis
+  threat-overview/        # /threat-overview — situational briefing
+commands/                 # Slash commands
+  hunt.md                 # /hunt — quick IOC search
+hooks/                    # Plugin lifecycle hooks
+  hooks.json              # Setup hook (auto-build on install)
 docs/
   GOAD.pdf                # Network topology diagram
   network-map.md          # Network map in markdown
+  mcp-standalone.json.example  # Standalone config template
 ```
 
 ## License

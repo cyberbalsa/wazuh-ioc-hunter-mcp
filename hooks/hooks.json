@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"${CLAUDE_PLUGIN_ROOT}/..\" && npm install --ignore-scripts && npm run build",
+            "command": "cd \"${CLAUDE_PLUGIN_ROOT}\" && npm install --ignore-scripts && npm run build",
             "timeout": 120
           }
         ]
