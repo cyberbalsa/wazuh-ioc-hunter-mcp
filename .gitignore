@@ -2,3 +2,5 @@ node_modules/
 dist/
 *.tsbuildinfo
 .mcp.json
+*.swp
+.DS_Store
