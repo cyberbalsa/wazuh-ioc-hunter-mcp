@@ -11,7 +11,7 @@
     {
       "name": "wazuh-ioc-hunter",
       "version": "1.0.0",
-      "source": ".",
+      "source": "./plugin",
       "description": "Hunt for Indicators of Compromise in Wazuh SIEM via OpenSearch — search IOCs, investigate hosts, analyze alerts"
     }
   ]
